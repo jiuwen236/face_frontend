@@ -55,28 +55,39 @@
 			}
 		},
 		onLoad: function(option) {
-			// this.init();
 			setTimeout(function() {
 				console.log('start pulldown');
 			}, 1000);
 			uni.startPullDownRefresh();
 		},
 		onPullDownRefresh() {
-			// this.init();
+			this.init();
 			setTimeout(function() {
 				uni.stopPullDownRefresh();
 			}, 1000);
 		},
 		onReachBottom() {
 			// 触底的时候请求数据，即为上拉加载更多
-			this.getPost();
+			this.getMore();
 		},
 		onShow() {
-			// this.getUser();
 			this.getPost();
 		},
 		methods: {
 			getPost(limit = 10) {
+				let that = this;
+				this.sendRequest({
+					url: "/post/get_all",
+					data: {
+						limit: limit,
+						bpid: 9660530943306
+					},
+					success: (res) => {
+						that.postList = res.data;
+					}
+				});
+			},
+			getMore(limit = 10) {
 				let that = this;
 				this.sendRequest({
 					url: "/post/get_all",
