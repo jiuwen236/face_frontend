@@ -1,22 +1,22 @@
 <template>
 	<view>
-		<view class="head_img" style="background-color: #f5f5f5;">
+		<view class="head-img" style="background-color: #f5f5f5;">
 			<image src="/static/Header_background.png" style="width: 100%" mode="widthFix">
 		</view>
 
 		<view class="set" @click="to_set()">
 			<image src="/static/Frame_7064_Iconly_Light_Setting2.png" style="height: 60rpx;width:60rpx;">
 		</view>
-		<view class="portrait">
-			<image :src="iconUrl" mode="aspectFill" style="border-radius: 125rpx;height: 125rpx;width:125rpx;">
+		<view class="personal-icon">
+			<image :src="iconUrl" mode="aspectFill" style="border-radius: 125rpx;height: 125rpx; width:125rpx;">
 		</view>
-		<view class="testText1">
+		<view class="username-class">
 			<text selectable='true'>{{username}}</text>
 		</view>
-		<view class="testText2">
+		<view class="motto-class">
 			<text selectable='true'>{{motto}}</text>
 		</view>
-		<view class="middle_a">
+		<view class="postnum-class">
 			<view class="btn">发帖数:{{postNum}}</view>
 		</view>
 
@@ -34,7 +34,7 @@
 								<uni-icons class="comment-icons" type="chat" size="20"></uni-icons>
 								<view class="commentNum">{{item.commentNum}}</view>
 							</view>
-							<view class="zan">
+							<view class="like">
 								<!-- {{item.is_liked}} -->
 								<uni-icons type="heart-filled" size="20" v-if="item.is_liked"></uni-icons>
 								<uni-icons type="heart" size="20" v-else></uni-icons>
@@ -44,7 +44,7 @@
 
 						<view class="info-down">
 							<uni-icons class="dateIcon" type="calendar" size="20"></uni-icons>
-							<view class="date">{{item.updatedTime.split("T").join(" ")}}</view>
+							<view class="date">{{getFormatDate(item.updatedTime)}}</view>
 						</view>
 					</view>
 				</view>
@@ -55,51 +55,41 @@
 </template>
 
 <script>
-	// import dataJson from "../../testData/data.js";
+	import {
+		getTimeAgo
+	} from "@/common/js/utils.js"
 	export default {
 		data() {
 			return {
 				username: '',
 				uid: 0,
 				flowList: [],
-				authorization: "",
+				bpid: 9660530943306,
 				iconUrl: "",
 				motto: "",
-				postNum: ""
+				postNum: "",
 			}
 		},
+		onLoad: function (option) {
+			this.init();
+			setTimeout(function () {
+				console.log('start pulldown');
+			}, 1000);
+			uni.startPullDownRefresh();
+		},
+		onPullDownRefresh() {
+			this.init();
+			setTimeout(function () {
+				uni.stopPullDownRefresh();
+			}, 1000);
+		},
+		onReachBottom() {
+			// 触底的时候请求数据，即为上拉加载更多
+			this.getselfpost();
+		},
 		onShow() {
-			this.onload();
-			let that = this;
-			that.authorization = uni.getStorageSync("authorization");
-			uni.request({
-				url: 'http://124.221.253.187:5000/post/get_self_posts',
-				method: 'GET',
-				header: {
-					'Authorization': that.authorization
-				},
-				success: (res1) => {
-					// console.log(res1);
-					// console.log("check");
-					if (res1.statusCode == 200) {
-						// 获取的data有问题
-						let datas = res1.data.data;
-						// console.log(datas);
-						that.flowList = datas;
-						// console.log(that.flowList);
-						// this.flowList = dataJson.flowList;
-					} else {
-						this.flowList = dataJson.flowList;
-						console.log("获取帖子失败");
-					}
-				}
-			})
+			this.init();
 		},
-		mounted() {
-
-
-		},
-
 		methods: {
 			turnToPost(pid) {
 				console.log(pid);
@@ -109,52 +99,56 @@
 					url: url1
 				})
 			},
-
-			onload() {
+            getselfpost(limit = 10){
 				let that = this;
-				// console.log("mounted");
-				try {
-					const authorization = uni.getStorageSync('authorization');
-					// console.log(authorization);
-					if (!authorization) throw DOMException("Nope!");
-					else {
-						uni.request({
-							url: 'http://124.221.253.187:5000/user/user-info',
-							header: {
-								'Authorization': authorization
-							},
-							success: (res) => {
-								// console.log(res);
-								this.text = 'request success';
-								if (res.statusCode == 200) {
-									that.username = res.data.data.username;
-									that.uid = res.data.data.uid;
-									that.iconUrl = res.data.data.iconUrl;
-									that.postNum = res.data.data.postNum;
-									that.motto = res.data.data.motto;
-									// console.log("check");
-									// console.log(res);
-								} else {
-									uni.showToast({
-										title: res.data.detail,
-										icon: 'none'
-									})
-								}
-							}
-						})
+				this.sendRequest({
+					url: "/post/get_self_posts",
+					data: {
+						limit: limit,
+						bpid: that.bpid
+					},
+					success: (res) => {
+						let datas = res.data;
+						if (datas && datas.length != 0) {
+							that.flowList.push.apply(that.flowList, datas);
+							that.bpid = that.flowList[that.flowList.length - 1].pid;
+						}
 					}
+				});
+			},
+			getselfuser() {
+				let that = this;
+				try {
+					this.sendRequest({
+						url: "/user/user-info",
+						success: (res) => {
+							that.username = res.data.username;
+							that.uid = res.data.uid;
+							that.motto = res.data.motto;
+							that.iconUrl = res.data.iconUrl;
+							that.postNum = res.data.postNum;
+							console.log("收到的", that.uid);
+						}
+					})
 				} catch (e) {
 					console.log(e)
 				};
-
 			},
-
+            init() {
+            	this.bpid = 9660530943306;
+            	this.flowList = [];
+            	this.getselfuser();
+            	this.getselfpost();
+            },
 			to_set() {
 				uni.navigateTo({
 					url: '/pages/set/set'
 				})
+			},
+			getFormatDate(data){
+				return getTimeAgo(data);
 			}
-		}
+		},
 	}
 </script>
 
@@ -176,7 +170,7 @@
 		/* background-color: green; */
 	}
 
-	.head_img {
+	.head-img {
 		height: 300rpx;
 		background-color: #ffffff;
 		z-index: 1 !important;
@@ -184,7 +178,7 @@
 		/* 	position: fixed; */
 	}
 
-	.portrait {
+	.personal-icon {
 		border-radius: 125rpx;
 		height: 125rpx;
 		width: 125rpx;
@@ -195,7 +189,7 @@
 		left: 42%;
 	}
 
-	.testText1 {
+	.username-class {
 		position: absolute;
 		font-size: 32rpx;
 		font-weight: bold;
@@ -207,7 +201,7 @@
 
 	}
 
-	.testText2 {
+	.motto-class {
 		position: absolute;
 		font-size: 30rpx;
 		font-weight: bold;
@@ -219,9 +213,11 @@
 
 	}
 
-	.btn {
+	.postnum-class {
 		width: 80%;
-		height: 100rpx;
+		height: 50px;
+		top:33%;
+		position: absolute;
 		background: linear-gradient(270deg, rgba(136, 139, 244, 1) 0%, rgba(81, 81, 198, 1) 100%);
 		box-shadow: 0px 6px 8px rgba(134, 136, 242, 0.2);
 		border-radius: 0px;
@@ -229,28 +225,122 @@
 		font-size: 1.5rem;
 		text-align: center;
 		line-height: 50px;
-		margin-bottom: 100rpx;
-		margin-left: 75rpx;
+		margin-left: 39px;
 		margin-right: 70rpx;
 
 	}
-
-	.middle_a {
-		position: absolute;
-		font-size: 30rpx;
-		font-weight: bold;
-		width: 100%;
-		top: 33%;
-		height: 50px;
-		font-weight: 300;
-		text-align: center;
-	}
-
 	.content {
 		width: 100%;
 		background-color: #f5f5f5;
-		padding: 0 15px;
+		padding: 0 0px;
 		/* height: 400px; */
-		margin-top: 150px;
+		margin-top: 180px;
+	}
+	@charset "utf-8";
+	
+	.flowPanel {
+		/* flex-direction: row; */
+		justify-content: space-between;
+		width: 100%;
+		overflow: hidden;
+		/* background-color: #f8f8f8; */
+	}
+	
+	.flowPanel .itemContainer {
+		border: 2px solid;
+		border-color: #f8f8f8;
+		width: 99%;
+		/* height: 318px; */
+		border-radius: 0px;
+		display: flex;
+		flex-direction: column;
+		padding: 0px;
+		align-items: center;
+		flex: 1;
+		margin: 0px 0px;
+		background-color: #ffffff;
+		/* border: 2px solid red; */
+	}
+	
+	.flowPanel .itemContainer .itemContent {
+		width:90%;
+		display: block;
+		margin: 0px;
+		/* height: 250px; */
+		/* border: 2px solid red; */
+	}
+	
+	.flowPanel .itemContainer .itemContent img {
+		width: 100%;
+		display: block;
+		margin:-2px;
+		object-fit: scale-down;
+		padding-top: 10px;
+		/* border: 2px solid blue; */
+	}
+	
+	.flowPanel .itemContainer .title {
+		overflow: hidden;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		word-wrap: break-word;
+		word-break: break-all;
+		color: #333;
+		text-align: left;
+		padding: 0.3em 0.5em;
+	}
+	
+	.flowPanel .itemContainer .info {
+		width: 100%;
+		color: #8a8a8a;
+		overflow: hidden;
+		padding: 0px;
+		border-top: 1px #e9e9e9 solid;
+		
+	}
+	
+	.flowPanel .itemContainer .info .info-up {
+		display: flex;
+		flex-direction: row;
+		/* justify-content: space-between; */
+	}
+	
+	
+	.flowPanel .itemContainer .info .info-up .comment {
+		flex-direction: row;
+	}
+	
+	.flowPanel .itemContainer .info .info-up .comment-icons {}
+	
+	.flowPanel .itemContainer .info .info-up .commentNum {
+		flex-direction: row;
+		font-size: 15px;
+		line-height: center;
+		float: right;
+	}
+	
+	
+	.flowPanel .itemContainer .info .info-up .like {
+		flex-direction: row;
+		padding-left: 40%;
+	}
+	
+	.flowPanel .itemContainer .info .info-up .likeNum {
+		flex-direction: row;
+		font-size: 15px;
+		line-height: center;
+		float: right;
+	}
+	
+	.flowPanel .itemContainer .info .info-down {
+		display: flex;
+		flex-direction: row;
+	}
+	
+	.flowPanel .itemContainer .info .info-down .date {
+		flex-direction: row;
+		font-size: 15px;
+		line-height: center;
 	}
 </style>
