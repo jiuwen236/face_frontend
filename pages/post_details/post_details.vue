@@ -151,7 +151,7 @@
 	export default {
 		onLoad: function(option) { //option为object类型，会序列化上个页面传递的参数
 			this.pid = parseInt(option.pid);
-			console.log(this.pid) //打印出上个页面传递的参数。//打印出上个页面传递的参数。
+			// console.log(this.pid) //打印出上个页面传递的参数。//打印出上个页面传递的参数。
 		},
 		data() {
 			return {
@@ -210,7 +210,6 @@
 								pid: that.pid
 							},
 							success: (res) => {
-								console.log(res)
 								this.text = 'request success';
 								if (res.code == 200) {
 									that.numberComment = res.data.commentNum;
@@ -311,7 +310,6 @@
 												pid: that.pid
 											},
 											success: (res) => {
-												console.log(res)
 												this.text = 'request success';
 												that.numberComment = res.data.commentNum;
 												that.numberLike = res.data.likeNum;
