@@ -57,28 +57,20 @@
 					const authorization = uni.getStorageSync('authorization');
 					if (!authorization) throw DOMException("Nope!");
 					else {
-						uni.request({
-							url: 'http://124.221.253.187:5000/user/user-info',
+						that.sendRequest({
+							url: '/user/user-info',
 							method: 'GET',
-							header: {
-								'Authorization': authorization
-							},
 							success: (res) => {
 								console.log(res);
 								this.text = 'request success';
-								if (res.statusCode == 200) {
-									that.username = res.data.data.username;
-									that.studentIndex = res.data.data.gender;
-									that.age = res.data.data.age;
-									that.motto = res.data.data.motto;
-									that.mail = res.data.data.mail;
-									that.icon = res.data.data.iconUrl;
-									that.uid = res.data.data.uid;
-								} else {
-									uni.showToast({
-										title: res.data.detail,
-										icon: 'none'
-									})
+								if (res.code == 200) {
+									that.username = res.data.username;
+									that.studentIndex = res.data.gender;
+									that.age = res.data.age;
+									that.motto = res.data.motto;
+									that.mail = res.data.mail;
+									that.icon = res.data.iconUrl;
+									that.uid = res.data.uid;
 								}
 							}
 						})

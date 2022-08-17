@@ -80,36 +80,31 @@
 					return false
 				}
 
-				uni.request({
-					url: 'http://124.221.253.187:5000/user/register',
+				this.sendRequest({
+					url: '/user/register',
 					method: 'POST',
-					header: {
-						"content-type": "application/x-www-form-urlencoded"
-					},
+					requestDataType: 'form',
 					data: {
 						phoneNumber: that.iphoneValue,
 						password: that.passwordValue1
 					},
 					success: (res) => {
-						if (res.data.code == 200) {
+						if (res.code == 200) {
 							uni.showToast({
 								title: '注册成功',
 								icon: 'none'
 							})
-							uni.request({
-								url: 'http://124.221.253.187:5000/user/login',
+							this.sendRequest({
+								url: '/user/register',
 								method: 'POST',
-								header: {
-									"content-type": "application/x-www-form-urlencoded"
-								},
+								requestDataType: 'form',
 								data: {
 									phoneNumber: that.iphoneValue,
 									password: that.passwordValue1
 								},
 								success: (res2) => {
-									console.log(res2);
 									if (res2.statusCode == 200) {
-										console.log('登录成功');
+										// console.log('登录成功');
 										uni.setStorageSync('authorization', res2.data.token_type +
 											' ' + res2.data.access_token);
 									}
@@ -120,12 +115,6 @@
 									url: '/pages/homepage/homepage'
 								});
 							}, 400)
-
-						} else {
-							uni.showToast({
-								title: '该账号已存在',
-								icon: 'none'
-							})
 						}
 					}
 				});
