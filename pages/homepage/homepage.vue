@@ -34,9 +34,7 @@
 						</view>
 					</view>
 
-					<view class="info-down">
-						<uni-icons type="calendar" size="20"></uni-icons>
-					</view>
+
 				</view>
 			</view>
 		</view>
@@ -57,14 +55,14 @@
 			}
 		},
 		onLoad: function(option) {
-			this.init();
+			// this.init();
 			setTimeout(function() {
 				console.log('start pulldown');
 			}, 1000);
 			uni.startPullDownRefresh();
 		},
 		onPullDownRefresh() {
-			this.init();
+			// this.init();
 			setTimeout(function() {
 				uni.stopPullDownRefresh();
 			}, 1000);
@@ -74,7 +72,8 @@
 			this.getPost();
 		},
 		onShow() {
-			this.init();
+			// this.getUser();
+			this.getPost();
 		},
 		methods: {
 			getPost(limit = 10) {
@@ -207,10 +206,5 @@
 		display: flex;
 		flex-direction: row;
 		padding-left: 40%;
-	}
-
-	.container .content-container .post-container .info .info-down {
-		display: flex;
-		flex-direction: row;
 	}
 </style>
