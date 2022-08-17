@@ -111,8 +111,7 @@
 					this.sendRequest({
 						url: '/user/user-info',
 						success: (res) => {
-							console.log(res)
-							this.text = 'request success';
+							// this.text = 'request success';
 							if (res.code == 200) {
 								that.username = res.data.username;
 								that.studentIndex = res.data.gender;
@@ -152,16 +151,13 @@
 							iconUrl: that.iconUrl
 						}, //发送的数据
 						success: (res) => {
-							console.log(res)
-							if (res.code == 200) {
-								uni.showToast({
-									title: '保存成功',
-									icon: 'none'
-								});
-								setTimeout(() => {
-									uni.navigateBack();
-								}, 800)
-							}
+							uni.showToast({
+								title: '保存成功',
+								icon: 'none'
+							});
+							setTimeout(() => {
+								uni.navigateBack();
+							}, 800)
 						}
 					})
 

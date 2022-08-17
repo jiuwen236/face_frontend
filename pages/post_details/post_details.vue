@@ -256,13 +256,10 @@
 					console.log(authorization)
 					if (!authorization) throw DOMException("Nope!");
 					else {
-						uni.request({
-							url: 'http://124.221.253.187:5000/comment/comment_for_comment',
+						that.sendRequest({
+							url: '/comment/comment_for_comment',
 							method: 'POST',
-							header: {
-								'Authorization': authorization,
-								"content-type": "application/x-www-form-urlencoded"
-							},
+							requestDataType: 'form',
 							data: {
 								pid: that.pid,
 								context: that.comment_text,
@@ -271,15 +268,10 @@
 							success: (res) => {
 								console.log(res)
 								this.text = 'request success';
-								if (res.statusCode == 200) {
+								if (res.code == 200) {
 									that.comment_text = '';
-									this.sendRequest();
+									this.sendRequest_();
 									console.log(res.detail)
-								} else {
-									uni.showToast({
-										title: res.data.detail,
-										icon: 'none'
-									})
 								}
 							}
 						})
@@ -298,13 +290,10 @@
 					console.log(authorization)
 					if (!authorization) throw DOMException("Nope!");
 					else {
-						uni.request({
-							url: 'http://124.221.253.187:5000/comment/comment_for_post',
+						that.sendRequest({
+							url: '/comment/comment_for_post',
 							method: 'POST',
-							header: {
-								'Authorization': authorization,
-								"content-type": "application/x-www-form-urlencoded"
-							},
+							requestDataType: 'form',
 							data: {
 								pid: that.pid,
 								context: that.comment_text
@@ -312,48 +301,34 @@
 							success: (res) => {
 								console.log(res)
 								this.text = 'request success';
-								if (res.statusCode == 200) {
+								if (res.code == 200) {
 									that.comment_text = '',
-										uni.request({
-											url: 'http://124.221.253.187:5000/post/get_post_by_pid',
+										that.sendRequest({
+											url: '/post/get_post_by_pid',
 											method: 'POST',
-											header: {
-												'Authorization': authorization,
-												"content-type": "application/x-www-form-urlencoded"
-											},
+											requestDataType: 'form',
 											data: {
 												pid: that.pid
 											},
 											success: (res) => {
 												console.log(res)
 												this.text = 'request success';
-												if (res.statusCode == 200) {
-													that.numberComment = res.data.data.commentNum;
-													that.numberLike = res.data.data.likeNum;
-													that.post_title = res.data.data.title;
-													that.post_main = res.data.data.context;
-													that.time = res.data.data.createdTime;
-													that.swipers = res.data.data.imgUrls;
-													that.allComments = res.data.data.comments;
-													that.icon = res.data.data.iconUrl;
-													that.username = res.data.data.username;
-													that.like = res.data.data.is_liked == true ? 1 : 0;
-													that.uid = res.data.data.uid;
-													that.len = that.swipers.length;
-												} else {
-													uni.showToast({
-														title: res.data.detail,
-														icon: 'none'
-													})
-												}
+												that.numberComment = res.data.commentNum;
+												that.numberLike = res.data.likeNum;
+												that.post_title = res.data.title;
+												that.post_main = res.data.context;
+												that.time = res.data.createdTime;
+												that.swipers = res.data.imgUrls;
+												that.allComments = res.data.comments;
+												that.icon = res.data.iconUrl;
+												that.username = res.data.username;
+												that.like = res.data.is_liked == true ? 1 : 0;
+												that.uid = res.data.uid;
+												that.len = that.swipers.length;
+
 											}
 										})
-									console.log(res.detail)
-								} else {
-									uni.showToast({
-										title: res.data.detail,
-										icon: 'none'
-									})
+
 								}
 							}
 						})

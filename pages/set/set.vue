@@ -51,7 +51,6 @@
 		},
 		methods: {
 			get_inf() {
-				console.log("inf");
 				let that = this;
 				try {
 					const authorization = uni.getStorageSync('authorization');
@@ -61,7 +60,6 @@
 							url: '/user/user-info',
 							method: 'GET',
 							success: (res) => {
-								console.log(res);
 								this.text = 'request success';
 								if (res.code == 200) {
 									that.username = res.data.username;

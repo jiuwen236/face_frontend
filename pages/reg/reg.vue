@@ -103,11 +103,9 @@
 									password: that.passwordValue1
 								},
 								success: (res2) => {
-									if (res2.statusCode == 200) {
-										// console.log('登录成功');
-										uni.setStorageSync('authorization', res2.data.token_type +
-											' ' + res2.data.access_token);
-									}
+									// console.log('登录成功');
+									uni.setStorageSync('authorization', res2.data.token_type +
+										' ' + res2.data.access_token);
 								}
 							})
 							setTimeout(() => {
